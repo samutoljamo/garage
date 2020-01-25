@@ -1,8 +1,8 @@
 import discord
 import asyncio
-
 with open(".token", "r") as file:
     token = file.read()
+
 
 class Client(discord.Client):
     guild_id = 670551146078928896
@@ -12,14 +12,24 @@ class Client(discord.Client):
         self.channel = self.get_channel(self.channel_id)
         await self.send_message("Online")
 
-    async def send_message(self, message):
+    async def send_message(self, message, everyone=False):
         if self.channel and self.channel.guild.id == self.guild_id:
-            await self.channel.send(f"@everyone {message}")
+            await self.channel.send(f"{'@everyone ' if everyone else ''}{message}")
+
 
     async def on_message(self, message):
-        pass
+        if message.channel.id != self.channel_id:
+            return
+        if message.content.startswith("!temperature"):
+            await self.temperature()
 
-client = Client()
+    async def temperature(self):
+        """
+        Sends the current temperature
+        """
+        await self.send_message("23")
+
+client = Client(command_prefix="!")
 client.run(token)
 
 
