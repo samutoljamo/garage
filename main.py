@@ -17,7 +17,7 @@ class Client(discord.Client):
             await self.channel.send(f"@everyone {message}")
 
     async def on_message(self, message):
-        print(message.content)
+        pass
 
 client = Client()
 client.run(token)
