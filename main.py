@@ -52,6 +52,7 @@ class Client(discord.Client):
 client = Client(command_prefix="!")
 
 def on_press():
+    print("pressed")
     client.reported = False
     client.timestamp = time.time()
 
