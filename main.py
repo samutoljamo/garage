@@ -39,10 +39,8 @@ class Client(discord.Client):
 
     async def background_task(self):
         await self.wait_until_ready()
-        print("hmm")
         while not self.is_closed:
             if self.timestamp:
-                print(time.time() - self.timestamp >= 10)
                 if time.time() - self.timestamp >= 10:
                     if not self.reported:
                         self.send_message("Ovi auki yli 5 min")
@@ -54,17 +52,16 @@ class Client(discord.Client):
 client = Client(command_prefix="!")
 
 def on_press():
-    print("pressed")
+    client.timestamp = None
+def on_release():
     client.reported = False
     client.timestamp = time.time()
-
-def on_release():
-    client.timestamp = None
 
 button = gpiozero.Button(4)
 
 button.when_pressed = on_press
 button.when_released = on_release
+client.loop.create_task(client.background_task())
 client.run(token)
 
 
