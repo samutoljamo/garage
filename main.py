@@ -2,8 +2,9 @@ import discord
 import asyncio
 import gpiozero
 import time
-from signal import pause
+import os
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 with open(".token", "r") as file:
     token = file.read()
