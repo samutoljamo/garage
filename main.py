@@ -17,6 +17,10 @@ class Client(discord.Client):
     timestamp = None
     reported = False
     max_time_open = 5
+    channel = None
+    log_channel = None
+    request_channel = None
+    
 
 
     async def on_ready(self):
@@ -27,7 +31,7 @@ class Client(discord.Client):
         await self.log("Online")
 
     async def log(self, message):
-        if self.channel and self.channel.guild.id == self.guild_id:
+        if self.log_channel and self.log_channel.guild.id == self.guild_id:
             await self.log_channel.send(message)
         
     async def send_important(self, message, everyone=False):
@@ -65,6 +69,8 @@ class Client(discord.Client):
 
     async def background_task(self):
         await self.wait_until_ready()
+        while not self.log_channel:
+            await asyncio.sleep(1)
         await self.log("Background task started")
         while not self.is_closed():
             if self.timestamp:
