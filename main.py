@@ -47,13 +47,13 @@ class Client(discord.Client):
     async def set_time(self, message):
         split = message.split()
         if len(split) < 2:
-            await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!aika 5\")
+            await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!aika 5\"")
         t = split[1]
         try:
             t = float(t.replace(",", "."))
             self.max_time_open = t
         except ValueError:
-            await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!aika 5\")
+            await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!aika 5\"")
 
         
 
