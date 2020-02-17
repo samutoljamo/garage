@@ -39,8 +39,10 @@ class Client(discord.Client):
 
     async def background_task(self):
         await self.wait_until_ready()
+        print("Background task started")
         while not self.is_closed:
             if self.timestamp:
+                print(time.time() - self.timestamp)
                 if time.time() - self.timestamp >= 10:
                     if not self.reported:
                         self.send_message("Ovi auki yli 5 min")
