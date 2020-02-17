@@ -60,7 +60,8 @@ def on_release():
     client.timestamp = None
     print("released")
 
-button = gpiozero.Button(4, bounce_time=0.5)
+button = gpiozero.Button(4)
+
 button.when_pressed = on_press
 button.when_released = on_release
 pause()
