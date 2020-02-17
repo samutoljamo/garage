@@ -1,5 +1,9 @@
 import discord
 import asyncio
+import gpiozero
+import time
+
+
 with open(".token", "r") as file:
     token = file.read()
 
@@ -7,6 +11,9 @@ with open(".token", "r") as file:
 class Client(discord.Client):
     guild_id = 670551146078928896
     channel_id = 670552115952877582
+    timestamp = None
+    reported = False
+
 
     async def on_ready(self):
         self.channel = self.get_channel(self.channel_id)
@@ -20,7 +27,7 @@ class Client(discord.Client):
     async def on_message(self, message):
         if message.channel.id != self.channel_id:
             return
-        if message.content.startswith("!temperature"):
+        if message.content.startswith("!lämpötila"):
             await self.temperature()
 
     async def temperature(self):
@@ -29,7 +36,31 @@ class Client(discord.Client):
         """
         await self.send_message("23")
 
+    async def background_task(self):
+        await self.wait_until_ready()
+        while not self.is_closed:
+            if self.timestamp:
+                if time.time() - self.timestamp >= 10:
+                    if not self.reported:
+                        self.send_message("Ovi auki yli 5 min")
+                        self.reported = True
+            await asyncio.sleep(10)
+
+
+
 client = Client(command_prefix="!")
+
+def on_press():
+    client.reported = False
+    client.timestamp = time.time()
+
+def on_release():
+    client.timestamp = None
+
+button = gpiozero.Button(4, bounce_time=0.5)
+button.when_pressed = on_press
+button.when_released = on_release
+
 client.run(token)
 
 
