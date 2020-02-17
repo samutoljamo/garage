@@ -41,13 +41,14 @@ class Client(discord.Client):
         await self.wait_until_ready()
         print("Background task started")
         while not self.is_closed:
+            print(self.timestamp)
             if self.timestamp:
                 print(time.time() - self.timestamp)
                 if time.time() - self.timestamp >= 10:
                     if not self.reported:
                         self.send_message("Ovi auki yli 5 min")
                         self.reported = True
-            await asyncio.sleep(10)
+            await asyncio.sleep(1)
 
 
 
@@ -56,6 +57,7 @@ client = Client(command_prefix="!")
 def on_press():
     client.timestamp = None
 def on_release():
+    print("Released")
     client.reported = False
     client.timestamp = time.time()
 
