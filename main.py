@@ -40,6 +40,7 @@ class Client(discord.Client):
     async def background_task(self):
         await self.wait_until_ready()
         print("Background task started")
+        print(self.is_closed)
         while not self.is_closed:
             print(self.timestamp)
             if self.timestamp:
