@@ -2,6 +2,7 @@ import discord
 import asyncio
 import gpiozero
 import time
+from signal import pause
 
 
 with open(".token", "r") as file:
@@ -53,15 +54,17 @@ client = Client(command_prefix="!")
 def on_press():
     client.reported = False
     client.timestamp = time.time()
+    print("pressed")
 
 def on_release():
     client.timestamp = None
+    print("released")
 
 button = gpiozero.Button(4, bounce_time=0.5)
 button.when_pressed = on_press
 button.when_released = on_release
-
-client.run(token)
+pause()
+#client.run(token)
 
 
 
