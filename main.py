@@ -70,7 +70,7 @@ class Client(discord.Client):
             if self.timestamp:
                 if time.time() - self.timestamp >= self.max_time_open * 60:
                     if not self.reported:
-                        await self.send_important(f"Ovi on ollut auki yli {str(self.max_time_open).replace(".", ",")} min")
+                        await self.send_important(f"Ovi on ollut auki yli {str(self.max_time_open).replace('.', ',')} min")
                         self.reported = True
             await asyncio.sleep(1)
 
