@@ -78,6 +78,7 @@ class Client(discord.Client):
             try:
                 t = bool(t)
                 self.settings['debug'] = t
+                await self.log(f"Debug: {t]")
                 self._write_settings()
             except ValueError:
                 await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!debug true\"")
@@ -89,6 +90,8 @@ class Client(discord.Client):
         t = split[1]
         try:
             t = float(t.replace(",", "."))
+            await self.log(f"Time: {t]")
+            await self.request_channel.send(f"Hälytän, kun on kulunut {str(self.settings['time']).replace('.', ',')} min")
             self.settings['time'] = t
             self._write_settings()
         except ValueError:
@@ -112,9 +115,9 @@ class Client(discord.Client):
                 if time.time() - self.timestamp >= self.settings['time'] * 60:
                     if not self.reported:
                         if self.settings['debug']:
-                            await self.log(f"Ovi on ollut auki yli {str(self.max_time_open).replace('.', ',')} min")
+                            await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
                         else:
-                            await self.send_important(f"Ovi on ollut auki yli {str(self.max_time_open).replace('.', ',')} min")
+                            await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
                     
                         self.reported = True
             await asyncio.sleep(1)
