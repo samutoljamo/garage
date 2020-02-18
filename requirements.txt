@@ -10,3 +10,4 @@ multidict==4.7.4
 typing-extensions==3.7.4.1
 websockets==8.1
 yarl==1.4.2
+Adafruit_DHT

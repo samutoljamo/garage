@@ -4,8 +4,9 @@ import gpiozero
 import time
 import os
 import json
+import Adafruit_DHT as dht
 
-
+DHT_PIN = 3
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -103,7 +104,8 @@ class Client(discord.Client):
         """
         Sends the current temperature
         """
-        await self.request_channel.send("23")
+        humidity, temperature = dht.read(dht.DHT22, DHT_PIN)
+        await self.request_channel.send(str(temperature))
 
     async def background_task(self):
         await self.wait_until_ready()
