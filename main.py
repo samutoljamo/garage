@@ -3,12 +3,23 @@ import asyncio
 import gpiozero
 import time
 import os
+import json
+
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 
 with open(".token", "r") as file:
     token = file.read()
 
+SETTINGS_FILENAME = "settings.json"
+default_settings = {
+    "time": 5
+    "debug": False
+}
+if not os.path.exists(SETTINGS_FILENAME):
+    with open(SETTINGS_FILENAME, "w") as file:
+        json.dump(default_settings, file)
 
 class Client(discord.Client):
     guild_id = 670551146078928896
@@ -17,12 +28,21 @@ class Client(discord.Client):
     request_channel_id = 678990230384148481
     timestamp = None
     reported = False
-    max_time_open = 5
     channel = None
     log_channel = None
     request_channel = None
     
+    def __init__(self, *args, **kwargs):
+        self.settings = {}
+        self._read_settings()
+        super().__init__(*args, **kwargs)
 
+    def _write_settings(self):
+        with open(SETTINGS_FILENAME, "w") as file:
+            json.dump(self.settings, file)
+    def _read_settings(self):
+        with open(SETTINGS_FILENAME, "r") as file:
+            self.settings = json.load(file)
 
     async def on_ready(self):
         self.channel = self.get_channel(self.channel_id)
@@ -48,15 +68,29 @@ class Client(discord.Client):
         
         elif message.content.startswith("!aika"):
             await self.set_time(message.content)
+
+        
+        elif message.content.startswith("!debug"):
+            split = message.split()
+            if len(split) < 2:
+                return await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!debug true\"")
+            t = split[1]
+            try:
+                t = bool(t)
+                self.settings['debug'] = t
+                self._write_settings()
+            except ValueError:
+                await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!debug true\"")
     
     async def set_time(self, message):
         split = message.split()
         if len(split) < 2:
-            await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!aika 5\"")
+            return await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!aika 5\"")
         t = split[1]
         try:
             t = float(t.replace(",", "."))
-            self.max_time_open = t
+            self.settings['time'] = t
+            self._write_settings()
         except ValueError:
             await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!aika 5\"")
 
@@ -75,9 +109,13 @@ class Client(discord.Client):
         await self.log("Background task started")
         while not self.is_closed():
             if self.timestamp:
-                if time.time() - self.timestamp >= self.max_time_open * 60:
+                if time.time() - self.timestamp >= self.settings['time'] * 60:
                     if not self.reported:
-                        await self.send_important(f"Ovi on ollut auki yli {str(self.max_time_open).replace('.', ',')} min")
+                        if self.settings['debug']:
+                            await self.log(f"Ovi on ollut auki yli {str(self.max_time_open).replace('.', ',')} min")
+                        else:
+                            await self.send_important(f"Ovi on ollut auki yli {str(self.max_time_open).replace('.', ',')} min")
+                    
                         self.reported = True
             await asyncio.sleep(1)
 
