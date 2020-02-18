@@ -105,7 +105,10 @@ class Client(discord.Client):
         Sends the current temperature
         """
         humidity, temperature = dht.read(dht.DHT22, DHT_PIN)
-        await self.request_channel.send(f"{temperature:.1f}")
+        if temperature:
+            await self.request_channel.send(f"{temperature:.1f}")
+        else:
+            await self.request_channel.send("Jokin meni pieleen")
 
     async def background_task(self):
         await self.wait_until_ready()
