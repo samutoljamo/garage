@@ -91,7 +91,7 @@ class Client(discord.Client):
         try:
             t = float(t.replace(",", "."))
             await self.log(f"Time: {t}")
-            await self.request_channel.send(f"Hälytän, kun on kulunut {str(self.settings['time']).replace('.', ',')} min")
+            await self.request_channel.send(f"Hälytän, kun on kulunut {str(t).replace('.', ',')} min")
             self.settings['time'] = t
             self._write_settings()
         except ValueError:
