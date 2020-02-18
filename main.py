@@ -71,7 +71,7 @@ class Client(discord.Client):
 
         
         elif message.content.startswith("!debug"):
-            split = message.split()
+            split = message.content.split()
             if len(split) < 2:
                 return await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!debug true\"")
             t = split[1]
