@@ -14,8 +14,8 @@ with open(".token", "r") as file:
 
 SETTINGS_FILENAME = "settings.json"
 default_settings = {
-    "time": 5
-    "debug": False
+    "time": 5,
+    "debug": False,
 }
 if not os.path.exists(SETTINGS_FILENAME):
     with open(SETTINGS_FILENAME, "w") as file:
