@@ -5,6 +5,7 @@ import time
 import os
 import json
 import Adafruit_DHT as dht
+import utils
 
 DHT_PIN = 3
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -12,6 +13,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 with open(".token", "r") as file:
     token = file.read()
+
 
 SETTINGS_FILENAME = "settings.json"
 default_settings = {
@@ -64,20 +66,22 @@ class Client(discord.Client):
     async def on_message(self, message):
         if message.channel.id != self.request_channel_id:
             return
-        if message.content.startswith("!lämpötila"):
+        if message.content.lower().startswith("!lämpötila"):
             await self.temperature()
         
-        elif message.content.startswith("!aika"):
+        elif message.content.lower().startswith("!aika"):
             await self.set_time(message.content)
 
         
-        elif message.content.startswith("!debug"):
+        elif message.content.lower().startswith("!debug"):
             split = message.content.split()
             if len(split) < 2:
                 return await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!debug true\"")
             t = split[1]
             try:
-                t = bool(t)
+                t = utils.to_bool(t)
+                if t == None:
+                    raise ValueError()
                 self.settings['debug'] = t
                 await self.log(f"Debug: {t}")
                 self._write_settings()
