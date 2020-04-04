@@ -29,16 +29,18 @@ class Client(discord.Client):
     channel_id = 678990127498002432
     log_channel_id = 678989059217162263
     request_channel_id = 678990230384148481
-    timestamp = None
-    reported = False
-    channel = None
-    log_channel = None
-    request_channel = None
     
     def __init__(self, *args, **kwargs):
         self.settings = {}
         self._read_settings()
         super().__init__(*args, **kwargs)
+        self.timestamp = None
+        self.reported = False
+        self.channel = None
+        self.log_channel = None
+        self.request_channel = None
+        self.first_start = True
+        self.connected = False
 
     def _write_settings(self):
         with open(SETTINGS_FILENAME, "w") as file:
@@ -51,8 +53,13 @@ class Client(discord.Client):
         self.channel = self.get_channel(self.channel_id)
         self.log_channel = self.get_channel(self.log_channel_id)
         self.request_channel = self.get_channel(self.request_channel_id)
+        if self.first_start:
+            await self.log("Online")
+            self.first_start = False
+        self.connected = True
 
-        await self.log("Online")
+    async def on_disconnect(self):
+        self.connected = False
 
     async def log(self, message):
         if self.log_channel and self.log_channel.guild.id == self.guild_id:
@@ -116,13 +123,12 @@ class Client(discord.Client):
 
     async def background_task(self):
         await self.wait_until_ready()
-        while not self.log_channel:
+        while not self.connected:
             await asyncio.sleep(1)
-        await self.log("Background task started")
         while not self.is_closed():
             if self.timestamp:
-                if time.time() - self.timestamp >= self.settings['time'] * 60:
-                    if not self.reported:
+                if time.time() - self.timestamp >= self.settings['time'] * 60 :
+                    if not self.reported and self.connected:
                         if self.settings['debug']:
                             await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
                         else:
