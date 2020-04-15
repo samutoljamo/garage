@@ -138,6 +138,7 @@ class Client(discord.Client):
             await self.request_channel.send("Jokin meni pieleen")
 
     async def background_task(self):
+        logger.log("waiting until client is ready...")
         await self.wait_until_ready()
         while not self.connected:
             await asyncio.sleep(1)
