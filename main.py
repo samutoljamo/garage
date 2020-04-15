@@ -48,6 +48,7 @@ class Client(discord.Client):
         self.request_channel = None
         self.first_start = True
         self.connected = False
+        self.bg_task = self.loop.create_task(self.background_task())
         logger.debug("Created Client object successfully")
 
     def _write_settings(self):
@@ -138,14 +139,13 @@ class Client(discord.Client):
             await self.request_channel.send("Jokin meni pieleen")
 
     async def background_task(self):
-        logger.log("waiting until client is ready...")
-        await self.wait_until_ready()
+        print("waiting until client is ready")
         while not self.connected:
             await asyncio.sleep(1)
-        logger.log("background task started")
+        print("background task started")
         while not self.is_closed():
             if self.timestamp:
-                logger.log(str(time.time() - self.timestamp))
+                print(str(time.time() - self.timestamp))
                 if time.time() - self.timestamp >= self.settings['time'] * 60 :
                     if not self.reported and self.connected:
                         if self.settings['debug']:
@@ -174,7 +174,6 @@ if not button.is_pressed:
     on_release()
 button.when_pressed = on_press
 button.when_released = on_release
-client.loop.create_task(client.background_task())
 client.run(token)
 
 
