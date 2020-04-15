@@ -11,12 +11,12 @@ import utils
 DHT_PIN = 3
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.CRITICAL,
                     format='%(asctime)s %(name) %(levelname) %(message)s',
                     datefmt='%m-%d %H:%M',
                     )
 logger = logging.getLogger(__name__)
-
+logger.setLevel(logging.DEBUG)
 with open(".token", "r") as file:
     token = file.read()
 
