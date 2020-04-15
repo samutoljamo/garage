@@ -103,7 +103,7 @@ class Client(discord.Client):
             t = split[1]
             try:
                 t = utils.to_bool(t)
-                if t == None:
+                if t is None:
                     raise ValueError()
                 self.settings['debug'] = t
                 await self.log(f"Debug: {t}")
@@ -141,6 +141,7 @@ class Client(discord.Client):
         await self.wait_until_ready()
         while not self.connected:
             await asyncio.sleep(1)
+        logger.log("background task started")
         while not self.is_closed():
             if self.timestamp:
                 logger.log(str(time.time() - self.timestamp))
@@ -155,15 +156,17 @@ class Client(discord.Client):
             await asyncio.sleep(1)
 
 
-
 client = Client()
+
 
 def on_press():
     client.timestamp = None
 
+
 def on_release():
     client.reported = False
     client.timestamp = time.time()
+
 
 button = gpiozero.Button(4)
 if not button.is_pressed:
