@@ -86,7 +86,7 @@ class Client(discord.Client):
 
 
     async def on_message(self, message):
-        logger.debug("received message: " + message)
+        logger.debug("received message: " + message.content)
         if message.channel.id != self.request_channel_id:
             return
         if message.content.lower().startswith("!lämpötila"):
@@ -143,7 +143,7 @@ class Client(discord.Client):
             await asyncio.sleep(1)
         while not self.is_closed():
             if self.timestamp:
-                logger.log(time.time() - self.timestamp)
+                logger.log(str(time.time() - self.timestamp))
                 if time.time() - self.timestamp >= self.settings['time'] * 60 :
                     if not self.reported and self.connected:
                         if self.settings['debug']:
