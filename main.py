@@ -4,12 +4,18 @@ import gpiozero
 import time
 import os
 import json
+import logging
 import Adafruit_DHT as dht
 import utils
 
 DHT_PIN = 3
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(name) %(levelname) %(message)s',
+                    datefmt='%m-%d %H:%M',
+                    )
+logger = logging.getLogger(__name__)
 
 with open(".token", "r") as file:
     token = file.read()
@@ -23,6 +29,7 @@ default_settings = {
 if not os.path.exists(SETTINGS_FILENAME):
     with open(SETTINGS_FILENAME, "w") as file:
         json.dump(default_settings, file)
+
 
 class Client(discord.Client):
     guild_id = 670551146078928896
@@ -41,10 +48,12 @@ class Client(discord.Client):
         self.request_channel = None
         self.first_start = True
         self.connected = False
+        logger.debug("Created Client object successfully")
 
     def _write_settings(self):
         with open(SETTINGS_FILENAME, "w") as file:
             json.dump(self.settings, file)
+
     def _read_settings(self):
         with open(SETTINGS_FILENAME, "r") as file:
             self.settings = json.load(file)
@@ -57,20 +66,27 @@ class Client(discord.Client):
             await self.log("Online")
             self.first_start = False
         self.connected = True
+        logger.debug("connected to discord")
+        if self.channel and self.log_channel and self.request_channel:
+            logger.debug("found all required channels")
 
     async def on_disconnect(self):
+        logger.debug("disconnected")
         self.connected = False
 
     async def log(self, message):
+        logger.debug("log: " + message)
         if self.log_channel and self.log_channel.guild.id == self.guild_id:
             await self.log_channel.send(message)
         
     async def send_important(self, message, everyone=False):
+        logger.debug("important: " + message)
         if self.channel and self.channel.guild.id == self.guild_id:
             await self.channel.send(f"{'@everyone ' if everyone else ''}{message}")
 
 
     async def on_message(self, message):
+        logger.debug("received message: " + message)
         if message.channel.id != self.request_channel_id:
             return
         if message.content.lower().startswith("!lämpötila"):
@@ -127,6 +143,7 @@ class Client(discord.Client):
             await asyncio.sleep(1)
         while not self.is_closed():
             if self.timestamp:
+                logger.log(time.time() - self.timestamp)
                 if time.time() - self.timestamp >= self.settings['time'] * 60 :
                     if not self.reported and self.connected:
                         if self.settings['debug']:
