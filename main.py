@@ -12,7 +12,7 @@ DHT_PIN = 3
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 logging.basicConfig(level=logging.CRITICAL,
-                    format='%(asctime)s %(name) %(levelname) %(message)s',
+                    format='%(asctime)s %(levelname)s %(message)s',
                     datefmt='%m-%d %H:%M',
                     )
 logger = logging.getLogger(__name__)
