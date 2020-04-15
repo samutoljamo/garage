@@ -145,7 +145,6 @@ class Client(discord.Client):
         print("background task started")
         while not self.is_closed():
             if self.timestamp:
-                print(str(time.time() - self.timestamp))
                 if time.time() - self.timestamp >= self.settings['time'] * 60 :
                     if not self.reported and self.connected:
                         if self.settings['debug']:
