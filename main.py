@@ -10,13 +10,6 @@ import utils
 
 DHT_PIN = 3
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-logging.basicConfig(level=logging.CRITICAL,
-                    format='%(asctime)s %(levelname)s %(message)s',
-                    datefmt='%m-%d %H:%M',
-                    )
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 with open(".token", "r") as file:
     token = file.read()
 
@@ -49,7 +42,7 @@ class Client(discord.Client):
         self.first_start = True
         self.connected = False
         self.bg_task = self.loop.create_task(self.background_task())
-        logger.debug("Created Client object successfully")
+        utils.log("Created Client object successfully")
 
     def _write_settings(self):
         with open(SETTINGS_FILENAME, "w") as file:
@@ -76,18 +69,19 @@ class Client(discord.Client):
         self.connected = False
 
     async def log(self, message):
-        logger.debug("log: " + message)
+    	if log:
+        	utils.log(message)
         if self.log_channel and self.log_channel.guild.id == self.guild_id:
             await self.log_channel.send(message)
         
     async def send_important(self, message, everyone=False):
-        logger.debug("important: " + message)
+        utils.log("important: " + message)
         if self.channel and self.channel.guild.id == self.guild_id:
             await self.channel.send(f"{'@everyone ' if everyone else ''}{message}")
 
 
     async def on_message(self, message):
-        logger.debug("received message: " + message.content)
+        utils.log("received message: " + message.content)
         if message.channel.id != self.request_channel_id:
             return
         if message.content.lower().startswith("!lämpötila"):
@@ -148,7 +142,7 @@ class Client(discord.Client):
                 if time.time() - self.timestamp >= self.settings['time'] * 60 :
                     if not self.reported and self.connected:
                         if self.settings['debug']:
-                            await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
+                            await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min", log=False)
                         else:
                             await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
                     
