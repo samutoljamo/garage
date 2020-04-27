@@ -61,12 +61,12 @@ class Client(discord.Client):
             await self.log("Online")
             self.first_start = False
         self.connected = True
-        logger.debug("connected to discord")
+        utils.log("connected to discord")
         if self.channel and self.log_channel and self.request_channel:
-            logger.debug("found all required channels")
+            utils.log("found all required channels")
 
     async def on_disconnect(self):
-        logger.debug("disconnected")
+        utils.log("disconnected")
         self.connected = False
 
     async def log(self, message):
