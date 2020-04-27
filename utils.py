@@ -10,6 +10,6 @@ def to_bool(string):
 
 
 def log(msg):
-	print(f"{time.strftime("%d.%m.%y %H:%M:%S", time.localtime())}: {msg}")
+	print(f'{time.strftime("%d.%m.%y %H:%M:%S", time.localtime())}: {msg}')
 
 
