@@ -30,7 +30,8 @@ class Client(discord.Client):
     log_channel_id = 678989059217162263
     request_channel_id = 678990230384148481
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, button, *args, **kwargs):
+        self.button = button
         self.settings = {}
         self._read_settings()
         super().__init__(*args, **kwargs)
@@ -69,8 +70,7 @@ class Client(discord.Client):
         self.connected = False
 
     async def log(self, message):
-    	if log:
-        	utils.log(message)
+    	utils.log(message)
         if self.log_channel and self.log_channel.guild.id == self.guild_id:
             await self.log_channel.send(message)
         
@@ -133,40 +133,29 @@ class Client(discord.Client):
             await self.request_channel.send("Jokin meni pieleen")
 
     async def background_task(self):
-        print("waiting until client is ready")
+        utils.log("waiting until client is ready")
         while not self.connected:
             await asyncio.sleep(1)
-        print("background task started")
+        utils.log("background task started")
         while not self.is_closed():
+            if self.button.is_pressed:
+                utils.log("pressed")
+            else:
+                utils.log("not pressed")
             if self.timestamp:
                 if time.time() - self.timestamp >= self.settings['time'] * 60 :
                     if not self.reported and self.connected:
                         if self.settings['debug']:
-                            await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min", log=False)
+                            await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
                         else:
                             await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
-                    
                         self.reported = True
             await asyncio.sleep(1)
-
-
-client = Client()
-
-
-def on_press():
-    client.timestamp = None
-
-
-def on_release():
-    client.reported = False
-    client.timestamp = time.time()
+        utils.log("background task terminating")
 
 
 button = gpiozero.Button(4)
-if not button.is_pressed:
-    on_release()
-button.when_pressed = on_press
-button.when_released = on_release
+client = Client(button)
 client.run(token)
 
 
