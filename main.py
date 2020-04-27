@@ -70,7 +70,7 @@ class Client(discord.Client):
         self.connected = False
 
     async def log(self, message):
-    	utils.log(message)
+        utils.log(message)
         if self.log_channel and self.log_channel.guild.id == self.guild_id:
             await self.log_channel.send(message)
         
