@@ -138,10 +138,12 @@ class Client(discord.Client):
             await asyncio.sleep(1)
         utils.log("background task started")
         while not self.is_closed():
-            if self.button.is_pressed:
-                utils.log("pressed")
+            if not self.button.is_pressed:
+                if self.timestamp is None:
+                    self.timestamp = time.time()
             else:
-                utils.log("not pressed")
+                self.timestamp = None
+                self.reported = False
             if self.timestamp:
                 if time.time() - self.timestamp >= self.settings['time'] * 60 :
                     if not self.reported and self.connected:
