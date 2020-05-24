@@ -2,7 +2,7 @@ import discord
 import asyncio
 import gpiozero
 import time
-import os
+import os, traceback
 import json
 import logging
 import Adafruit_DHT as dht
@@ -138,21 +138,25 @@ class Client(discord.Client):
             await asyncio.sleep(1)
         utils.log("background task started")
         while not self.is_closed():
-            if not self.button.is_pressed:
-                if self.timestamp is None:
-                    self.timestamp = time.time()
-            else:
-                self.timestamp = None
-                self.reported = False
-            if self.timestamp:
-                if time.time() - self.timestamp >= self.settings['time'] * 60 :
-                    if not self.reported and self.connected:
-                        if self.settings['debug']:
-                            await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
-                        else:
-                            await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
-                        self.reported = True
-            await asyncio.sleep(1)
+        	try:
+	            if not self.button.is_pressed:
+	                if self.timestamp is None:
+	                    self.timestamp = time.time()
+	            else:
+	                self.timestamp = None
+	                self.reported = False
+	            if self.timestamp:
+	                if time.time() - self.timestamp >= self.settings['time'] * 60 :
+	                    if not self.reported and self.connected:
+	                        if self.settings['debug']:
+	                            await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
+	                        else:
+	                            await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
+	                        self.reported = True
+	            await asyncio.sleep(1)
+	        except Exception as e:
+	        	await self.log(e.message)
+	        	await self.log(''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
         utils.log("background task terminating")
 
 
