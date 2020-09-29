@@ -44,7 +44,7 @@ class Client(discord.Client):
         self.first_start = True
         self.connected = False
         self.bg_task = self.loop.create_task(self.background_task())
-        self.ok_emoji = '\uE24D'
+        self.ok_emoji = '🆗'
         utils.log("Created Client object successfully")
 
     def _write_settings(self):
@@ -147,6 +147,7 @@ class Client(discord.Client):
                         self.timestamp = time.time()
                 else:
                     if self.reported:
+                        utils.log("closed")
                         await message.add_reaction(self.ok_emoji)
                         message = None
                     self.timestamp = None
