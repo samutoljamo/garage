@@ -29,6 +29,7 @@ class Client(discord.Client):
     channel_id = 678990127498002432
     log_channel_id = 678989059217162263
     request_channel_id = 678990230384148481
+    role_id = 760413534453628939
     
     def __init__(self, button, *args, **kwargs):
         self.button = button
@@ -43,6 +44,7 @@ class Client(discord.Client):
         self.first_start = True
         self.connected = False
         self.bg_task = self.loop.create_task(self.background_task())
+        self.ok_emoji = '\uE24D'
         utils.log("Created Client object successfully")
 
     def _write_settings(self):
@@ -74,10 +76,10 @@ class Client(discord.Client):
         if self.log_channel and self.log_channel.guild.id == self.guild_id:
             await self.log_channel.send(message)
         
-    async def send_important(self, message, everyone=False):
+    async def send_important(self, message):
         utils.log("important: " + message)
         if self.channel and self.channel.guild.id == self.guild_id:
-            await self.channel.send(f"{'@everyone ' if everyone else ''}{message}")
+            await self.channel.send(f"<@&{self.role_id}>{message}")
 
 
     async def on_message(self, message):
@@ -137,21 +139,25 @@ class Client(discord.Client):
         while not self.connected:
             await asyncio.sleep(1)
         utils.log("background task started")
+        message = None
         while not self.is_closed():
         	try:
 	            if not self.button.is_pressed:
 	                if self.timestamp is None:
 	                    self.timestamp = time.time()
 	            else:
+                    if self.reported:
+                        await message.add_reaction(self.ok_emoji)
+                        message = None
 	                self.timestamp = None
 	                self.reported = False
 	            if self.timestamp:
 	                if time.time() - self.timestamp >= self.settings['time'] * 60 :
 	                    if not self.reported and self.connected:
 	                        if self.settings['debug']:
-	                            await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
+	                            message = await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
 	                        else:
-	                            await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
+	                            message = await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
 	                        self.reported = True
 	            await asyncio.sleep(1)
 	        except Exception as e:
