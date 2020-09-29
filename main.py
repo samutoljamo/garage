@@ -74,12 +74,12 @@ class Client(discord.Client):
     async def log(self, message):
         utils.log(message)
         if self.log_channel and self.log_channel.guild.id == self.guild_id:
-            await self.log_channel.send(message)
+            return await self.log_channel.send(message)
         
     async def send_important(self, message):
         utils.log("important: " + message)
         if self.channel and self.channel.guild.id == self.guild_id:
-            await self.channel.send(f"<@&{self.role_id}>{message}")
+            return await self.channel.send(f"<@&{self.role_id}> {message}")
 
 
     async def on_message(self, message):
