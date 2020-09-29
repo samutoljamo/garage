@@ -141,28 +141,28 @@ class Client(discord.Client):
         utils.log("background task started")
         message = None
         while not self.is_closed():
-        	try:
-	            if not self.button.is_pressed:
-	                if self.timestamp is None:
-	                    self.timestamp = time.time()
-	            else:
+            try:
+                if not self.button.is_pressed:
+                    if self.timestamp is None:
+                        self.timestamp = time.time()
+                else:
                     if self.reported:
                         await message.add_reaction(self.ok_emoji)
                         message = None
-	                self.timestamp = None
-	                self.reported = False
-	            if self.timestamp:
-	                if time.time() - self.timestamp >= self.settings['time'] * 60 :
-	                    if not self.reported and self.connected:
-	                        if self.settings['debug']:
-	                            message = await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
-	                        else:
-	                            message = await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
-	                        self.reported = True
-	            await asyncio.sleep(1)
-	        except Exception as e:
-	        	await self.log(e.message)
-	        	await self.log(''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
+                    self.timestamp = None
+                    self.reported = False
+                if self.timestamp:
+                    if time.time() - self.timestamp >= self.settings['time'] * 60 :
+                        if not self.reported and self.connected:
+                            if self.settings['debug']:
+                                message = await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
+                            else:
+                                message = await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
+                            self.reported = True
+                await asyncio.sleep(1)
+            except Exception as e:
+                await self.log(e.message)
+                await self.log(''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
         utils.log("background task terminating")
 
 
