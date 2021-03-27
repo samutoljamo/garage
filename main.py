@@ -140,7 +140,7 @@ class Client(discord.Client):
     async def background_task(self):
         utils.log("waiting until client is ready")
         while not self.connected:
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
         utils.log("background task started")
         message = None
         while not self.is_closed():
@@ -148,10 +148,10 @@ class Client(discord.Client):
                 if not self.button.is_pressed:
                     if self.timestamp is None:
                         self.timestamp = time.time()
-                        await self.log(f"Opened")
+                        await self.log("Opened")
                 else:
                     if timestamp is not None:
-                        await self.log(f"Closed")
+                        await self.log("Closed")
                     if self.reported:
                         await message.add_reaction(self.ok_emoji)
                         message = None
@@ -165,6 +165,7 @@ class Client(discord.Client):
                             else:
                                 message = await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
                             self.reported = True
+                await self.log("heartbeat")
                 await asyncio.sleep(1)
             except Exception as e:
                 await self.log(e.message)

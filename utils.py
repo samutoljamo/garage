@@ -11,7 +11,9 @@ def to_bool(string):
 
 
 def log(msg):
+    string = f'{time.strftime("%d.%m.%y %H:%M:%S", time.localtime())}: {msg}\n'
+    print(string)
     with open(FILE_LOCATION, "a") as file:
-	    file.write(f'{time.strftime("%d.%m.%y %H:%M:%S", time.localtime())}: {msg}\n')
+	    file.write(string)
 
 
