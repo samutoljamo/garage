@@ -8,6 +8,8 @@ import logging
 import Adafruit_DHT as dht
 import utils
 
+time.sleep(10)
+
 DHT_PIN = 3
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 with open(".token", "r") as file:
