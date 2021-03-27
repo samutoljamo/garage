@@ -75,7 +75,7 @@ class Client(discord.Client):
 
     async def log(self, message):
         utils.log(message)
-        if self.log_channel and self.log_channel.guild.id == self.guild_id:
+        if self.log_channel and self.log_channel.guild.id == self.guild_id and self.connected:
             return await self.log_channel.send(message)
         
     async def send_important(self, message):
@@ -143,6 +143,7 @@ class Client(discord.Client):
             await asyncio.sleep(2)
         utils.log("background task started")
         message = None
+        timestamp = None
         while not self.is_closed():
             try:
                 if not self.button.is_pressed:
@@ -165,11 +166,9 @@ class Client(discord.Client):
                             else:
                                 message = await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
                             self.reported = True
-                await self.log("heartbeat")
                 await asyncio.sleep(1)
             except Exception as e:
-                await self.log(e.message)
-                await self.log(' '.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
+                utils.log(' '.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
         utils.log("background task terminating")
 
 button = gpiozero.Button(4)
