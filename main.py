@@ -150,7 +150,7 @@ class Client(discord.Client):
                         self.timestamp = time.time()
                         await self.log(f"Opened")
                 else:
-                    if timestamp: is not None:
+                    if timestamp is not None:
                         await self.log(f"Closed")
                     if self.reported:
                         await message.add_reaction(self.ok_emoji)
