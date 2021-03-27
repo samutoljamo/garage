@@ -93,7 +93,6 @@ class Client(discord.Client):
         
         elif message.content.lower().startswith("!aika"):
             await self.set_time(message.content)
-
         
         elif message.content.lower().startswith("!debug"):
             split = message.content.split()
@@ -130,6 +129,8 @@ class Client(discord.Client):
         """
         Sends the current temperature
         """
+        await self.request_channel.send("Jokin meni pieleen")
+        return
         humidity, temperature = dht.read(dht.DHT22, DHT_PIN)
         if temperature:
             await self.request_channel.send(f"{temperature:.1f}")
@@ -147,9 +148,11 @@ class Client(discord.Client):
                 if not self.button.is_pressed:
                     if self.timestamp is None:
                         self.timestamp = time.time()
+                        await self.log(f"Opened")
                 else:
+                    if timestamp: is not None:
+                        await self.log(f"Closed")
                     if self.reported:
-                        utils.log("closed")
                         await message.add_reaction(self.ok_emoji)
                         message = None
                     self.timestamp = None
@@ -165,9 +168,8 @@ class Client(discord.Client):
                 await asyncio.sleep(1)
             except Exception as e:
                 await self.log(e.message)
-                await self.log(''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
+                await self.log(' '.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
         utils.log("background task terminating")
-
 
 button = gpiozero.Button(4)
 client = Client(button)
