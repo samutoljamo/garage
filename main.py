@@ -153,6 +153,7 @@ class Client(discord.Client):
                         self.timestamp = time.time()
                         await self.log("Opened")
                 else:
+                    utils.log(timestamp)
                     if timestamp is not None:
                         await self.log("Closed")
                     if self.reported:
