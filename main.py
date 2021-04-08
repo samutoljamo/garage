@@ -170,6 +170,7 @@ class Client(discord.Client):
             except Exception as e:
                 utils.log(' '.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
         utils.log("background task terminating")
+        os.system("sudo reboot")
 
 button = gpiozero.Button(4)
 client = Client(button)
