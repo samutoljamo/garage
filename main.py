@@ -145,17 +145,15 @@ class Client(discord.Client):
             await asyncio.sleep(2)
         utils.log("background task started")
         message = None
-        timestamp = None
+        self.timestamp = None
         while not self.is_closed():
             try:
                 if not self.button.is_pressed:
-                    utils.log(timestamp)
                     if self.timestamp is None:
                         self.timestamp = time.time()
                         await self.log("Opened")
                 else:
-                    utils.log(timestamp)
-                    if timestamp is not None:
+                    if self.timestamp is not None:
                         await self.log("Closed")
                     if self.reported:
                         await message.add_reaction(self.ok_emoji)
