@@ -149,6 +149,7 @@ class Client(discord.Client):
         while not self.is_closed():
             try:
                 if not self.button.is_pressed:
+                    utils.log(timestamp)
                     if self.timestamp is None:
                         self.timestamp = time.time()
                         await self.log("Opened")
