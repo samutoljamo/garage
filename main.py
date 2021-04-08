@@ -77,6 +77,8 @@ class Client(discord.Client):
         utils.log(message)
         if self.log_channel and self.log_channel.guild.id == self.guild_id and self.connected:
             return await self.log_channel.send(message)
+        else:
+            utils.log(f"connected: {self.connected}, log channel: {self.log_channel}")
         
     async def send_important(self, message):
         utils.log("important: " + message)
