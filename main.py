@@ -1,21 +1,28 @@
-import discord
 import asyncio
-import gpiozero
 import time
-import os, traceback
+import os
+import traceback
 import json
 import logging
+
 import Adafruit_DHT as dht
+import gpiozero
+import discord
+
 import utils
 
-time.sleep(10)
+time.sleep(10)  # give some time for rasp pi to start
 
-DHT_PIN = 3
+DHT_PIN = 3  # data pin of temperature sensor
+BUTTON_PIN = 4 # pin of the button that is pressed when the garage is closed
+
+# read discord token
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 with open(".token", "r") as file:
     token = file.read()
 
 
+# if settings file doesn't exist, create it and fill it with default values
 SETTINGS_FILENAME = "settings.json"
 default_settings = {
     "time": 5,
@@ -32,7 +39,7 @@ class Client(discord.Client):
     log_channel_id = 678989059217162263
     request_channel_id = 678990230384148481
     role_id = 760413534453628939
-    
+
     def __init__(self, button, *args, **kwargs):
         self.button = button
         self.settings = {}
@@ -50,10 +57,12 @@ class Client(discord.Client):
         utils.log("Created Client object successfully")
 
     def _write_settings(self):
+        # save settings from memory to disk
         with open(SETTINGS_FILENAME, "w") as file:
             json.dump(self.settings, file)
 
     def _read_settings(self):
+        # load settigns from disk to memory
         with open(SETTINGS_FILENAME, "r") as file:
             self.settings = json.load(file)
 
@@ -61,7 +70,7 @@ class Client(discord.Client):
         self.channel = self.get_channel(self.channel_id)
         self.log_channel = self.get_channel(self.log_channel_id)
         self.request_channel = self.get_channel(self.request_channel_id)
-        if self.first_start:
+        if self.first_start: # to prevent spam when connection is weak
             await self.log("Online")
             self.first_start = False
         self.connected = True
@@ -74,17 +83,19 @@ class Client(discord.Client):
         self.connected = False
 
     async def log(self, message):
+        # logs to disk, stdout and discord log channel
         utils.log(message)
         if self.log_channel and self.log_channel.guild.id == self.guild_id and self.connected:
             return await self.log_channel.send(message)
         else:
-            utils.log(f"connected: {self.connected}, log channel: {self.log_channel}")
-        
+            utils.log(
+                f"connected: {self.connected}, log channel: {self.log_channel}")
+
     async def send_important(self, message):
+        # send a message to channel which creates a notification for the members
         utils.log("important: " + message)
         if self.channel and self.channel.guild.id == self.guild_id:
             return await self.channel.send(f"<@&{self.role_id}> {message}")
-
 
     async def on_message(self, message):
         utils.log("received message: " + message.content)
@@ -92,10 +103,10 @@ class Client(discord.Client):
             return
         if message.content.lower().startswith("!lämpötila"):
             await self.temperature()
-        
+
         elif message.content.lower().startswith("!aika"):
             await self.set_time(message.content)
-        
+
         elif message.content.lower().startswith("!debug"):
             split = message.content.split()
             if len(split) < 2:
@@ -110,7 +121,7 @@ class Client(discord.Client):
                 self._write_settings()
             except ValueError:
                 await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!debug true\"")
-    
+
     async def set_time(self, message):
         split = message.split()
         if len(split) < 2:
@@ -125,12 +136,8 @@ class Client(discord.Client):
         except ValueError:
             await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!aika 5\"")
 
-        
-
     async def temperature(self):
-        """
-        Sends the current temperature
-        """
+        # cannot be used since temperature sensor was removed
         await self.request_channel.send("Jokin meni pieleen")
         return
         humidity, temperature = dht.read(dht.DHT22, DHT_PIN)
@@ -140,6 +147,10 @@ class Client(discord.Client):
             await self.request_channel.send("Jokin meni pieleen")
 
     async def background_task(self):
+        """
+        asyncronous loop that checks every second if the garage door is opened or closed.
+        if it is open for too long(time is specified by user) it will notify the user through discord
+        """
         utils.log("waiting until client is ready")
         while not self.connected:
             await asyncio.sleep(2)
@@ -161,7 +172,7 @@ class Client(discord.Client):
                     self.timestamp = None
                     self.reported = False
                 if self.timestamp:
-                    if time.time() - self.timestamp >= self.settings['time'] * 60 :
+                    if time.time() - self.timestamp >= self.settings['time'] * 60:
                         if not self.reported and self.connected:
                             if self.settings['debug']:
                                 message = await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
@@ -170,14 +181,12 @@ class Client(discord.Client):
                             self.reported = True
                 await asyncio.sleep(1)
             except Exception as e:
-                utils.log(' '.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
+                utils.log(' '.join(traceback.format_exception(
+                    etype=type(e), value=e, tb=e.__traceback__)))
         utils.log("background task terminating")
         os.system("sudo reboot")
 
-button = gpiozero.Button(4)
+
+button = gpiozero.Button(BUTTON_PIN)
 client = Client(button)
 client.run(token)
-
-
-
-
