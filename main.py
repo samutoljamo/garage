@@ -45,9 +45,6 @@ class Client(discord.Client):
         self.settings = {}
         self._read_settings()
         super().__init__(*args, **kwargs)
-        self.timestamp = None
-        self.is_open = False
-        self.reported = False
         self.channel = None
         self.log_channel = None
         self.request_channel = None
@@ -55,6 +52,12 @@ class Client(discord.Client):
         self.connected = False
         self.bg_task = self.loop.create_task(self.background_task())
         self.ok_emoji = '🆗'
+        self.state = {
+            "open": False,
+            "reported": False,
+            "timestamp": None,
+            "sent_message": None,
+        }
         utils.log("Created Client object successfully")
 
     def _write_settings(self):
@@ -159,16 +162,10 @@ class Client(discord.Client):
         while not self.connected:
             await asyncio.sleep(2)
         utils.log("background task started")
-        self.state = {
-            "open": False,
-            "reported": False,
-            "timestamp": None,
-            "sent_message": None,
-        }
         previous_values = []
         while not self.is_closed():
             try:
-                sensor_state = GPIO.input(this.sensor_pin)
+                sensor_state = GPIO.input(self.sensor_pin)
                 previous_values.append(sensor_state)
                 if len(previous_values) > 5:
                     previous_values.pop(0)
