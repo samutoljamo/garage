@@ -177,7 +177,7 @@ class Client(discord.Client):
                             self.state['timestamp'] = time.time()
                             utils.log("garage door opened")
                         else:
-                            if self.state['open'] and time.time() - self.state['timestamp'] > self.settings['time'] and not self.state['reported']:
+                            if time.time() - self.state['timestamp'] > self.settings['time'] * 60 and not self.state['reported']:
                                 await self.send_state()
                     else:
                         if self.state['open'] == True:
