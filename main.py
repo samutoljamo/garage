@@ -3,18 +3,18 @@ import time
 import os
 import traceback
 import json
-import logging
 
-import Adafruit_DHT as dht
-import gpiozero
 import discord
+# import gpio
+import RPi.GPIO as GPIO
+
 
 import utils
 
 time.sleep(10)  # give some time for rasp pi to start
 
 DHT_PIN = 3  # data pin of temperature sensor
-BUTTON_PIN = 4 # pin of the button that is pressed when the garage is closed
+SENSOR_PIN = 4 # pin of the button that is pressed when the garage is closed
 
 # read discord token
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -40,12 +40,13 @@ class Client(discord.Client):
     request_channel_id = 678990230384148481
     role_id = 760413534453628939
 
-    def __init__(self, button, *args, **kwargs):
-        self.button = button
+    def __init__(self, sensor_pin, *args, **kwargs):
+        self.sensor_pin = sensor_pin
         self.settings = {}
         self._read_settings()
         super().__init__(*args, **kwargs)
         self.timestamp = None
+        self.is_open = False
         self.reported = False
         self.channel = None
         self.log_channel = None
@@ -101,11 +102,15 @@ class Client(discord.Client):
         utils.log("received message: " + message.content)
         if message.channel.id != self.request_channel_id:
             return
-        if message.content.lower().startswith("!lämpötila"):
-            await self.temperature()
 
         elif message.content.lower().startswith("!aika"):
             await self.set_time(message.content)
+        
+        elif message.content.lower().startswith("!status"):
+            if self.state['open']:
+                await self.request_channel.send(f"Ovi on ollut auki {(time.time() - self.state['timestamp'])/60:.2f} min")
+            else:
+                await self.request_channel.send("Ovi on suljettu")
 
         elif message.content.lower().startswith("!debug"):
             split = message.content.split()
@@ -135,16 +140,15 @@ class Client(discord.Client):
             self._write_settings()
         except ValueError:
             await self.request_channel.send("Jokin meni pieleen! Esimerkki: \"!aika 5\"")
-
-    async def temperature(self):
-        # cannot be used since temperature sensor was removed
-        await self.request_channel.send("Jokin meni pieleen")
-        return
-        humidity, temperature = dht.read(dht.DHT22, DHT_PIN)
-        if temperature:
-            await self.request_channel.send(f"{temperature:.1f}")
+    
+    async def send_state(self):
+        message = None
+        if self.settings['debug']:
+            message = await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
         else:
-            await self.request_channel.send("Jokin meni pieleen")
+            message = await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
+        self.state['reported'] = True
+        self.state['sent_message'] = message
 
     async def background_task(self):
         """
@@ -155,38 +159,54 @@ class Client(discord.Client):
         while not self.connected:
             await asyncio.sleep(2)
         utils.log("background task started")
-        message = None
-        self.timestamp = None
+        self.state = {
+            "open": False,
+            "reported": False,
+            "timestamp": None,
+            "sent_message": None,
+        }
+        previous_values = []
         while not self.is_closed():
             try:
-                if not self.button.is_pressed:
-                    if self.timestamp is None:
-                        self.timestamp = time.time()
-                        await self.log("Opened")
-                else:
-                    if self.timestamp is not None:
-                        await self.log("Closed")
-                    if self.reported:
-                        await message.add_reaction(self.ok_emoji)
-                        message = None
-                    self.timestamp = None
-                    self.reported = False
-                if self.timestamp:
-                    if time.time() - self.timestamp >= self.settings['time'] * 60:
-                        if not self.reported and self.connected:
-                            if self.settings['debug']:
-                                message = await self.log(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
-                            else:
-                                message = await self.send_important(f"Ovi on ollut auki yli {str(self.settings['time']).replace('.', ',')} min")
-                            self.reported = True
-                await asyncio.sleep(1)
+                sensor_state = GPIO.input(this.sensor_pin)
+                previous_values.append(sensor_state)
+                if len(previous_values) > 5:
+                    previous_values.pop(0)
+                # check if all values are the same
+                if all(x == previous_values[0] for x in previous_values):
+                    if sensor_state == GPIO.LOW:
+                        if self.state['open'] == False:
+                            self.state['open'] = True
+                            self.state['timestamp'] = time.time()
+                            utils.log("garage door opened")
+                        else:
+                            if self.state['open'] and time.time() - self.state['timestamp'] > self.settings['time'] and not self.state['reported']:
+                                await self.send_state()
+                    else:
+                        if self.state['open'] == True:
+                            self.state['open'] = False
+                            self.state['timestamp'] = None
+                            self.state['reported'] = False
+                            utils.log("garage door closed")
+
+                        # if message exists, add a reaction to it and delete it from state
+                        if self.state['sent_message']:
+                            await self.state['sent_message'].add_reaction(self.ok_emoji)
+                            self.state['sent_message'] = None
+
             except Exception as e:
                 utils.log(' '.join(traceback.format_exception(
                     etype=type(e), value=e, tb=e.__traceback__)))
+            finally:
+                await asyncio.sleep(1)
         utils.log("background task terminating")
         os.system("sudo reboot")
 
 
-button = gpiozero.Button(BUTTON_PIN)
-client = Client(button)
-client.run(token)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+client = Client(SENSOR_PIN)
+try:
+    client.run(token)
+finally:
+    GPIO.cleanup()
