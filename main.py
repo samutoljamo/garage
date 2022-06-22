@@ -175,7 +175,7 @@ class Client(discord.Client):
                         if self.state['open'] == False:
                             self.state['open'] = True
                             self.state['timestamp'] = time.time()
-                            utils.log("garage door opened")
+                            await self.log("garage door opened")
                         else:
                             if time.time() - self.state['timestamp'] > self.settings['time'] * 60 and not self.state['reported']:
                                 await self.send_state()
@@ -184,7 +184,7 @@ class Client(discord.Client):
                             self.state['open'] = False
                             self.state['timestamp'] = None
                             self.state['reported'] = False
-                            utils.log("garage door closed")
+                            await self.log("garage door closed")
 
                         # if message exists, add a reaction to it and delete it from state
                         if self.state['sent_message']:
@@ -201,7 +201,7 @@ class Client(discord.Client):
 
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 client = Client(SENSOR_PIN)
 try:
     client.run(token)
