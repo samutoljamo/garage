@@ -49,7 +49,6 @@ class Client(discord.Client):
         self.log_channel = None
         self.request_channel = None
         self.first_start = True
-        self.connected = False
         self.bg_task = self.loop.create_task(self.background_task())
         self.ok_emoji = '🆗'
         self.state = {
@@ -77,23 +76,18 @@ class Client(discord.Client):
         if self.first_start: # to prevent spam when connection is weak
             await self.log("Online")
             self.first_start = False
-        self.connected = True
         utils.log("connected to discord")
         if self.channel and self.log_channel and self.request_channel:
             utils.log("found all required channels")
 
     async def on_disconnect(self):
         utils.log("disconnected")
-        self.connected = False
 
     async def log(self, message):
         # logs to disk, stdout and discord log channel
         utils.log(message)
-        if self.log_channel and self.log_channel.guild.id == self.guild_id and self.connected:
+        if self.log_channel:
             return await self.log_channel.send(message)
-        else:
-            utils.log(
-                f"connected: {self.connected}, log channel: {self.log_channel}")
 
     async def send_important(self, message):
         # send a message to channel which creates a notification for the members
@@ -201,7 +195,7 @@ class Client(discord.Client):
 
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 client = Client(SENSOR_PIN)
 try:
     client.run(token)
