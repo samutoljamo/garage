@@ -153,8 +153,7 @@ class Client(discord.Client):
         if it is open for too long(time is specified by user) it will notify the user through discord
         """
         utils.log("waiting until client is ready")
-        while not self.connected:
-            await asyncio.sleep(2)
+        await asyncio.sleep(10)
         utils.log("background task started")
         previous_values = []
         while not self.is_closed():
