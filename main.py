@@ -164,7 +164,7 @@ class Client(discord.Client):
                     previous_values.pop(0)
                 # check if all values are the same
                 if all(x == previous_values[0] for x in previous_values):
-                    if sensor_state == GPIO.LOW:
+                    if sensor_state == GPIO.HIGH:
                         if self.state['open'] == False:
                             self.state['open'] = True
                             self.state['timestamp'] = time.time()
