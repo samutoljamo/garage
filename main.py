@@ -10,8 +10,8 @@ import RPi.GPIO as GPIO
 
 
 import utils
-
-time.sleep(10)  # give some time for rasp pi to start
+intents = discord.Intents.all()
+#time.sleep(10)  # give some time for rasp pi to start
 
 DHT_PIN = 3  # data pin of temperature sensor
 SENSOR_PIN = 4 # pin of the button that is pressed when the garage is closed
@@ -49,7 +49,7 @@ class Client(discord.Client):
         self.log_channel = None
         self.request_channel = None
         self.first_start = True
-        self.bg_task = self.loop.create_task(self.background_task())
+        self.bg_task = None
         self.ok_emoji = '🆗'
         self.state = {
             "open": False,
@@ -58,6 +58,9 @@ class Client(discord.Client):
             "sent_message": None,
         }
         utils.log("Created Client object successfully")
+
+    async def setup_hook(self):
+        self.bg_task = self.loop.create_task(self.background_task())
 
     def _write_settings(self):
         # save settings from memory to disk
@@ -195,7 +198,7 @@ class Client(discord.Client):
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-client = Client(SENSOR_PIN)
+client = Client(SENSOR_PIN, intents=intents)
 try:
     client.run(token)
 finally:
