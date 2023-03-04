@@ -8,8 +8,8 @@ WorkingDirectory=/opt/garage/notifier
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User=pi
-Environment="DISCORD_WEBHOOK="
+User={{user}}
+Environment="DISCORD_WEBHOOK={{discord_webhook}}"
 
 [Install]
 WantedBy=multi-user.target
