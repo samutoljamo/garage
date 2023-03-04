@@ -6,6 +6,7 @@ from sensor import MockSensor, MagnetSensor
 
 SENSOR_PIN = 4 # pin of the button that is pressed when the garage is closed
 MOCK = False
+PING_ROLE_ID="760413534453628939"
 
 # check if debug mode is enabled
 if len(sys.argv) > 1 and sys.argv[1] == "debug":
@@ -43,7 +44,7 @@ while True:
           status = sensor_state
           timestamp = time.time()
       if status and not sent and time.time() - timestamp > REPORT_DELAY:
-          requests.post(discord_webhook, json={"content": f"Ovi on ollut auki yli {REPORT_DELAY/60:.2f} min"})
+          requests.post(discord_webhook, json={"content": f"<${PING_ROLE_ID}> Ovi on ollut auki yli {REPORT_DELAY/60:.2f} min"})
           sent = True
       time.sleep(1)
   except Exception as e:
