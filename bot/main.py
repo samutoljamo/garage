@@ -1,12 +1,23 @@
 import os
 import discord
-
-class MyClient(discord.Client):
-    async def on_ready(self):
-        print(f'Logged on as {self.user}!')
+from discord.ext import commands
+import socket
 
 intents = discord.Intents.default()
 intents.message_content = True
+
+
+bot = commands.Bot(command_prefix='!', intents=intents)
+
+@bot.command()
+async def ping(ctx):
+    await ctx.send('pong')
+
+@bot.command()
+async def address(ctx):
+    await ctx.send(socket.gethostbyname(socket.gethostname()))
+
+
 
 token = os.environ.get("DISCORD_TOKEN")
 
@@ -14,5 +25,4 @@ if not token:
     print("DISCORD_TOKEN not set, exiting")
     exit()
 
-client = MyClient(intents=intents)
-client.run(token)
+bot.run(token)
