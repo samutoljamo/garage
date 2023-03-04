@@ -1,4 +1,21 @@
 #!/bin/bash
+
+make_service(){
+    # ask for the user of the service
+  echo "Enter the user of the service:"
+  read user
+  sed -i -e "s/{{user}}/$user/g" notifier.service
+
+  # ask for the webhook url
+  echo "Enter the webhook url:"
+  read webhook
+  sed -i -e "s/{{discord_webhook}}/$webhook/g" notifier.service
+
+
+  # copy the service file to /etc/systemd/system
+  cp notifier.service /etc/systemd/system/notifier.service
+}
+
 echo "Installing notifier service"
 
 # stop the service
@@ -10,20 +27,10 @@ if [ -f "/etc/systemd/system/notifier.service" ]; then
     echo "Service file already exists. Overwrite? (y/n)"
     read overwrite
     if [ "$overwrite" = "y" ]; then
-      # ask for the user of the service
-      echo "Enter the user of the service:"
-      read user
-      sed -i -e "s/{{user}}/$user/g" notifier.service
-
-      # ask for the webhook url
-      echo "Enter the webhook url:"
-      read webhook
-      sed -i -e "s/{{discord_webhook}}/$webhook/g" notifier.service
-
-
-      # copy the service file to /etc/systemd/system
-      cp notifier.service /etc/systemd/system/notifier.service
+      make_service
     fi
+else
+  make_service
 fi
 
 # remove the old directory
