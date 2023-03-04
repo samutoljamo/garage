@@ -15,7 +15,9 @@ async def ping(ctx):
 
 @bot.command()
 async def address(ctx):
-    await ctx.send(socket.gethostbyname(socket.gethostname()+".local"))
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    await ctx.send(s.getsockname()[0])
 
 
 
