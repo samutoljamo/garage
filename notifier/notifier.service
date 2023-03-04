@@ -1,0 +1,15 @@
+[Unit]
+Description=Garage Notifier
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/garage/notifier/main.py
+WorkingDirectory=/opt/garage/notifier
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+Environment="DISCORD_WEBHOOK="
+
+[Install]
+WantedBy=multi-user.target

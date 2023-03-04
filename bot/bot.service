@@ -1,15 +1,15 @@
 [Unit]
-Description=Garage Notifier
+Description=Garage Bot
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/pi/garage/main.py
-WorkingDirectory=/home/pi/garage/
+ExecStart=/usr/bin/python3 /opt/garage/bot/main.py
+WorkingDirectory=/opt/garage/bot
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
 User=pi
-Environment="DISCORD_WEBHOOK="
+Environment="DISCORD_TOKEN="
 
 [Install]
 WantedBy=multi-user.target

@@ -2,7 +2,7 @@ import time
 import os
 import requests
 import sys
-from sensor import MockSensor, MagnetSensor
+from notifier.sensor import MockSensor, MagnetSensor
 
 SENSOR_PIN = 4 # pin of the button that is pressed when the garage is closed
 MOCK = False
