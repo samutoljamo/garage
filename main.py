@@ -37,10 +37,11 @@ while True:
           last_statuses.pop(0)
       # check if all values are the same
       if all(x == last_statuses[0] for x in last_statuses) and sensor_state != status:
+          if not sensor_state and sent:
+              requests.post(discord_webhook, json={"content": "Ovi on sulkeutunut"})
+              sent = False
           status = sensor_state
           timestamp = time.time()
-          if not status:
-              sent = False
       if status and not sent and time.time() - timestamp > REPORT_DELAY:
           requests.post(discord_webhook, json={"content": f"Ovi on ollut auki yli {REPORT_DELAY/60:.2f} min"})
           sent = True
