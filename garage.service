@@ -9,6 +9,7 @@ StandardOutput=inherit
 StandardError=inherit
 Restart=always
 User=pi
+Environment="DISCORD_WEBHOOK="
 
 [Install]
 WantedBy=multi-user.target
