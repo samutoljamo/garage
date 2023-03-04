@@ -9,7 +9,7 @@ make_service(){
   # ask for the webhook url
   echo "Enter the webhook url:"
   read webhook
-  sed -i -e "s/{{discord_webhook}}/$webhook/g" notifier.service
+  sed -i -e "s|{{discord_webhook}}|$webhook|g" notifier.service
 
 
   # copy the service file to /etc/systemd/system

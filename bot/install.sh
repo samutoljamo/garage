@@ -1,4 +1,21 @@
 #!/bin/bash
+
+make_service(){
+  # ask for the user of the service
+  echo "Enter the user of the service:"
+  read user
+  sed -i -e "s/{{user}}/$user/g" bot.service
+
+  # ask for the token of the bot
+  echo "Enter the token of the bot:"
+  read token
+  sed -i -e "s/{{token}}/$token/g" bot.service
+
+
+  # copy the service file to /etc/systemd/system
+  cp bot.service /etc/systemd/system/bot.service
+}
+
 echo "Installing bot service"
 
 # stop the service
@@ -10,20 +27,10 @@ if [ -f "/etc/systemd/system/bot.service" ]; then
     echo "Service file already exists. Overwrite? (y/n)"
     read overwrite
     if [ "$overwrite" = "y" ]; then
-      # ask for the user of the service
-      echo "Enter the user of the service:"
-      read user
-      sed -i -e "s/{{user}}/$user/g" bot.service
-
-      # ask for the token of the bot
-      echo "Enter the token of the bot:"
-      read token
-      sed -i -e "s/{{token}}/$token/g" bot.service
-
-
-      # copy the service file to /etc/systemd/system
-      cp bot.service /etc/systemd/system/bot.service
+      make_service
     fi
+else
+  make_service
 fi
 
 # remove the old directory
