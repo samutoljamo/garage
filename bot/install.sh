@@ -30,6 +30,7 @@ fi
 rm -rf /opt/garage/bot
 
 # copy files to /opt/garage-bot
+mkdir /opt/garage/bot
 cp -r * /opt/garage/bot
 
 

@@ -30,6 +30,7 @@ fi
 rm -rf /opt/garage/notifier
 
 # copy files to /opt/garage-bot
+mkdir /opt/garage/notifier
 cp -r * /opt/garage/notifier
 
 
