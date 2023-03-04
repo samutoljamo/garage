@@ -19,6 +19,7 @@ else:
     sensor = MagnetSensor(SENSOR_PIN)
 
 discord_webhook = os.environ.get("DISCORD_WEBHOOK")
+discord_webhook="https://discord.com/api/webhooks/1081637994483691550/7zf8vnJi6QEArpL1NHsyxBBjSXxWMyUGRYrYKawjWGT5i6lAFStU7IagG2w2lMJpwa4T"
 
 if not discord_webhook:
     print("DISCORD_WEBHOOK not set, exiting")
@@ -44,7 +45,7 @@ while True:
           status = sensor_state
           timestamp = time.time()
       if status and not sent and time.time() - timestamp > REPORT_DELAY:
-          requests.post(discord_webhook, json={"content": f"<${PING_ROLE_ID}> Ovi on ollut auki yli {REPORT_DELAY/60:.2f} min"})
+          requests.post(discord_webhook, json={"content": f"<@&{PING_ROLE_ID}> Ovi on ollut auki yli {REPORT_DELAY/60:.2f} min"})
           sent = True
       time.sleep(1)
   except Exception as e:
