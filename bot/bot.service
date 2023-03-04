@@ -8,8 +8,8 @@ WorkingDirectory=/opt/garage/bot
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User=pi
-Environment="DISCORD_TOKEN="
+User={{user}}
+Environment="DISCORD_TOKEN={{token}}"
 
 [Install]
 WantedBy=multi-user.target
