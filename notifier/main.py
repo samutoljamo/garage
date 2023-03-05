@@ -19,7 +19,6 @@ else:
     sensor = MagnetSensor(SENSOR_PIN)
 
 discord_webhook = os.environ.get("DISCORD_WEBHOOK")
-discord_webhook="https://discord.com/api/webhooks/1081637994483691550/7zf8vnJi6QEArpL1NHsyxBBjSXxWMyUGRYrYKawjWGT5i6lAFStU7IagG2w2lMJpwa4T"
 
 if not discord_webhook:
     print("DISCORD_WEBHOOK not set, exiting")
